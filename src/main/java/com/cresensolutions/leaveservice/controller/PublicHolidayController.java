@@ -1,5 +1,21 @@
 package com.cresensolutions.leaveservice.controller;
 
+import com.cresensolutions.leaveservice.dto.PublicHolidayRequest;
+import com.cresensolutions.leaveservice.dto.PublicHolidayResponse;
+import com.cresensolutions.leaveservice.dto.SuccessResponse;
+import com.cresensolutions.leaveservice.service.PublicHolidayService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@Slf4j
+@RequestMapping("/leaves")
+@CrossOrigin("*")
+@RequiredArgsConstructor
 public class PublicHolidayController {
 
     private final PublicHolidayService publicHolidayService;
