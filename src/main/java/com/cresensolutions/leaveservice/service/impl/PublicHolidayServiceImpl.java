@@ -1,25 +1,23 @@
-package com.cresensolutions.leaveservice.service;
+package com.cresensolutions.leaveservice.service.impl;
 
 import com.cresensolutions.leaveservice.dto.PublicHolidayRequest;
 import com.cresensolutions.leaveservice.dto.PublicHolidayResponse;
 import com.cresensolutions.leaveservice.entity.PublicHoliday;
+import com.cresensolutions.leaveservice.exception.CustomException;
 import com.cresensolutions.leaveservice.repository.PublicHolidayRepository;
+import com.cresensolutions.leaveservice.service.PublicHolidayService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class PublicHolidayServiceImpl implements PublicHolidayService {
 
     private final PublicHolidayRepository publicHolidayRepository;
-
-    public PublicHolidayServiceImpl(PublicHolidayRepository publicHolidayRepository) {
-        this.publicHolidayRepository = publicHolidayRepository;
-    }
 
     // ADMIN will create Public Holiday
     @Override
@@ -49,31 +47,19 @@ public class PublicHolidayServiceImpl implements PublicHolidayService {
     @Override
     public void updateHoliday(Long id, PublicHolidayRequest request) {
         PublicHoliday existing = publicHolidayRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Holiday not found with id: " + id));
+                .orElseThrow(() -> new CustomException("Holiday not found with id: " + id, 404));
         existing.setHolidayDate(request.getHolidayDate());
         existing.setFestivalName(request.getFestivalName());
         existing.setUpdatedAt(OffsetDateTime.now());
         publicHolidayRepository.save(existing);
-        log.info("Holiday updated successfully for id: {}", id);
     }
 
     // ADMIN can delete public holiday with id
     @Override
     public void deleteHoliday(Long id) {
-        log.info("Deleting public holiday with id: {}", id);
         if (!publicHolidayRepository.existsById(id)) {
-            throw new RuntimeException("Holiday not found with id: " + id);
+            throw new CustomException("Holiday not found with id: " + id, 404);
         }
         publicHolidayRepository.deleteById(id);
     }
-
-    // Sends public holidays to frontend to display
-//    @Override
-//    public List<LocalDate> getHolidayDatesBetween(LocalDate startDate, LocalDate endDate) {
-//        return publicHolidayRepository.findByHolidayDateBetween(startDate, endDate)
-//                .stream()
-//                .map(PublicHoliday::getHolidayDate)
-//                .toList();
-//    }
-
 }
