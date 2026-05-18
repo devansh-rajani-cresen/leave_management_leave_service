@@ -1,4 +1,4 @@
-package com.cresensolutions.userservice.exception;
+package com.cresensolutions.leaveservice.exception;
 
 import lombok.Getter;
 

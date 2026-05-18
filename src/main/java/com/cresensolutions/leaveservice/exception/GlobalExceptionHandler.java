@@ -1,9 +1,10 @@
-package com.cresensolutions.userservice.exception;
+package com.cresensolutions.leaveservice.exception;
 
-import com.cresensolutions.userservice.dto.ErrorResponse;
+import com.cresensolutions.leaveservice.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

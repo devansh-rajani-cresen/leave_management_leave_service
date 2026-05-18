@@ -1,4 +1,4 @@
-package com.cresensolutions.userservice.dto;
+package com.cresensolutions.leaveservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
