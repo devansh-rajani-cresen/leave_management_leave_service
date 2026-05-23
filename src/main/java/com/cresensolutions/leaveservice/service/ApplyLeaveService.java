@@ -7,4 +7,5 @@ import java.util.List;
 public interface ApplyLeaveService {
     List<ApplyLeaveResponse> getAllMyLeaves(Long userId);
     void applyLeave(ApplyLeaveRequest applyLeaveRequest);
+    void deletePendingLeave(Long userId, Long leaveId);
 }
