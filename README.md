@@ -24,21 +24,13 @@ graph TD
 
 ## Working flow :
 
-### 1. Apply Leave Flow :
+### 1. Leave Flowable :
 
-<img width="1808" height="546" alt="image" src="" />
+<img width="1683" height="545" alt="image" src="https://github.com/user-attachments/assets/869e50d1-a58d-463e-9b74-a1edb089b2bb" />
 
-### 2. Manager Approval Flow :
+### 2. AI Chatbot Working Flow :
 
-<img width="1577" height="737" alt="image" src="" />
-
-### 3. HR/Admin Approval Flow :
-
-<img width="1728" height="701" alt="image" src="" />
-
-### 4. AI Chatbot Tool Calling Flow :
-
-<img width="1352" height="682" alt="image" src="" />
+<img width="1795" height="646" alt="image" src="https://github.com/user-attachments/assets/89f669e7-50a5-41c2-9729-c8e7016cdaa5" />
 
 ## Role Descriptions & Endpoints
 
