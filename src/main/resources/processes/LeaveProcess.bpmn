@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="leaveProcess" name="Leave Approval Flow" isExecutable="true">
+    <startEvent id="startevent1"></startEvent>
+    <serviceTask id="notifyManager" name="Notify Manager" activiti:expression="${leaveFlowableService.notifyManager(execution)}"></serviceTask>
+    <userTask id="managerReview" name="Manager Review" activiti:assignee="${managerEmail}"></userTask>
+    <exclusiveGateway id="managerApprovedOrNot" name="Manager Approved?"></exclusiveGateway>
+    <serviceTask id="managerRejected" name="Send Rejection Mail (Manager)" activiti:expression="${leaveFlowableService.sendManagerRejectionMail(execution)}"></serviceTask>
+    <endEvent id="endevent1" name="End (Manager Rejected)"></endEvent>
+    <userTask id="HRReview" name="HR Review" activiti:assignee="${hrEmail}"></userTask>
+    <exclusiveGateway id="HRApprovedOrNot" name="HR Approved?"></exclusiveGateway>
+    <serviceTask id="HRApproved" name="Send Approval Mail to Employee and Manager" activiti:expression="${leaveFlowableService.sendHRApprovalMail(execution)}"></serviceTask>
+    <endEvent id="endevent2" name="End (Approved)"></endEvent>
+    <serviceTask id="HRRejected" name="Send Rejection Mail to Employee and Manager" activiti:expression="${leaveFlowableService.sendHRRejectionMail(execution)}"></serviceTask>
+    <endEvent id="endevent3" name="End (HR Rejected)"></endEvent>
+    <boundaryEvent id="timerfor2Days" attachedToRef="managerReview" cancelActivity="true">
+      <timerEventDefinition>
+        <timeDuration>PT48H</timeDuration>
+      </timerEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="notifyingManagerFlow" sourceRef="startevent1" targetRef="notifyManager"></sequenceFlow>
+    <sequenceFlow id="managerDecisionFlow" name="Manager Approved?" sourceRef="managerReview" targetRef="managerApprovedOrNot"></sequenceFlow>
+    <sequenceFlow id="managerRejectionFlow" name="No" sourceRef="managerApprovedOrNot" targetRef="managerRejected">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${managerApproved == false}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow6" sourceRef="managerRejected" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="managerApprovalFlow" name="Yes" sourceRef="managerApprovedOrNot" targetRef="notifyHR">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${managerApproved == true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="HRDecisionFlow" name="HR Approved?" sourceRef="HRReview" targetRef="HRApprovedOrNot"></sequenceFlow>
+    <sequenceFlow id="deductingLeaveFlow" name="Yes" sourceRef="HRApprovedOrNot" targetRef="deductLeavefromBalance">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${hrApproved == true}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow9" sourceRef="HRApproved" targetRef="endevent2"></sequenceFlow>
+    <sequenceFlow id="HRRejectionFlow" name="No" sourceRef="HRApprovedOrNot" targetRef="HRRejected">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${hrApproved == false}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow14" sourceRef="HRRejected" targetRef="endevent3"></sequenceFlow>
+    <serviceTask id="calculateReminderDate" name="Calculate Reminder date" activiti:expression="${leaveFlowableService.scheduleReminder(execution)}"></serviceTask>
+    <sequenceFlow id="calculatingReminderDateFlow" sourceRef="notifyManager" targetRef="calculateReminderDate"></sequenceFlow>
+    <sequenceFlow id="managerReviewFlow" sourceRef="calculateReminderDate" targetRef="managerReview"></sequenceFlow>
+    <serviceTask id="sendReminderMailToManager" name="Send Reminder mail to Manager" activiti:expression="${leaveFlowableService.sendReminderMail(execution)}"></serviceTask>
+    <sequenceFlow id="sending2daysReminderMailFlow" name="2 days before reminder" sourceRef="timerfor2Days" targetRef="sendReminderMailToManager"></sequenceFlow>
+    <serviceTask id="deductLeavefromBalance" name="Deduct Leave from Employee Leave Balance" activiti:expression="${leaveFlowableService.deductLeaveBalance(execution)}"></serviceTask>
+    <sequenceFlow id="HRApprovalFlow" sourceRef="deductLeavefromBalance" targetRef="HRApproved"></sequenceFlow>
+    <serviceTask id="notifyHR" name="Notify HR, Manager Approved these leaves" activiti:expression="${leaveFlowableService.hrReview(execution)}"></serviceTask>
+    <sequenceFlow id="HRReviewFlow" sourceRef="notifyHR" targetRef="HRReview"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_leaveProcess">
+    <bpmndi:BPMNPlane bpmnElement="leaveProcess" id="BPMNPlane_leaveProcess">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="19.0" y="145.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="notifyManager" id="BPMNShape_notifyManager">
+        <omgdc:Bounds height="55.0" width="105.0" x="120.0" y="135.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="managerReview" id="BPMNShape_managerReview">
+        <omgdc:Bounds height="55.0" width="105.0" x="480.0" y="135.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="timerfor2Days" id="BPMNShape_timerfor2Days">
+        <omgdc:Bounds height="30.0" width="30.0" x="518.0" y="182.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="managerApprovedOrNot" id="BPMNShape_managerApprovedOrNot">
+        <omgdc:Bounds height="40.0" width="40.0" x="708.0" y="142.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="managerRejected" id="BPMNShape_managerRejected">
+        <omgdc:Bounds height="71.0" width="192.0" x="870.0" y="127.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="1115.0" y="145.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="HRReview" id="BPMNShape_HRReview">
+        <omgdc:Bounds height="55.0" width="105.0" x="900.0" y="295.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="HRApprovedOrNot" id="BPMNShape_HRApprovedOrNot">
+        <omgdc:Bounds height="40.0" width="40.0" x="1122.0" y="302.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="HRApproved" id="BPMNShape_HRApproved">
+        <omgdc:Bounds height="71.0" width="191.0" x="1530.0" y="229.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
+        <omgdc:Bounds height="35.0" width="35.0" x="1760.0" y="247.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="HRRejected" id="BPMNShape_HRRejected">
+        <omgdc:Bounds height="71.0" width="186.0" x="1247.0" y="356.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent3" id="BPMNShape_endevent3">
+        <omgdc:Bounds height="35.0" width="35.0" x="1530.0" y="374.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="calculateReminderDate" id="BPMNShape_calculateReminderDate">
+        <omgdc:Bounds height="63.0" width="131.0" x="290.0" y="131.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sendReminderMailToManager" id="BPMNShape_sendReminderMailToManager">
+        <omgdc:Bounds height="81.0" width="131.0" x="310.0" y="303.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="deductLeavefromBalance" id="BPMNShape_deductLeavefromBalance">
+        <omgdc:Bounds height="71.0" width="187.0" x="1246.0" y="229.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="notifyHR" id="BPMNShape_notifyHR">
+        <omgdc:Bounds height="67.0" width="195.0" x="631.0" y="289.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="notifyingManagerFlow" id="BPMNEdge_notifyingManagerFlow">
+        <omgdi:waypoint x="54.0" y="162.0"></omgdi:waypoint>
+        <omgdi:waypoint x="120.0" y="162.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="managerDecisionFlow" id="BPMNEdge_managerDecisionFlow">
+        <omgdi:waypoint x="585.0" y="162.0"></omgdi:waypoint>
+        <omgdi:waypoint x="708.0" y="162.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="48.0" width="100.0" x="608.0" y="126.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="managerRejectionFlow" id="BPMNEdge_managerRejectionFlow">
+        <omgdi:waypoint x="748.0" y="162.0"></omgdi:waypoint>
+        <omgdi:waypoint x="870.0" y="162.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="16.0" x="784.0" y="142.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="1062.0" y="162.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1115.0" y="162.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="managerApprovalFlow" id="BPMNEdge_managerApprovalFlow">
+        <omgdi:waypoint x="728.0" y="182.0"></omgdi:waypoint>
+        <omgdi:waypoint x="728.0" y="289.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="23.0" x="658.0" y="222.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="HRDecisionFlow" id="BPMNEdge_HRDecisionFlow">
+        <omgdi:waypoint x="1005.0" y="322.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1122.0" y="322.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="82.0" x="1008.0" y="328.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="deductingLeaveFlow" id="BPMNEdge_deductingLeaveFlow">
+        <omgdi:waypoint x="1142.0" y="302.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1142.0" y="264.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1246.0" y="264.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="23.0" x="1154.0" y="233.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="1721.0" y="264.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1760.0" y="264.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="HRRejectionFlow" id="BPMNEdge_HRRejectionFlow">
+        <omgdi:waypoint x="1142.0" y="342.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1142.0" y="391.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1247.0" y="391.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="16.0" width="16.0" x="1154.0" y="401.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="1433.0" y="391.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1530.0" y="391.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="calculatingReminderDateFlow" id="BPMNEdge_calculatingReminderDateFlow">
+        <omgdi:waypoint x="225.0" y="162.0"></omgdi:waypoint>
+        <omgdi:waypoint x="290.0" y="162.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="managerReviewFlow" id="BPMNEdge_managerReviewFlow">
+        <omgdi:waypoint x="421.0" y="162.0"></omgdi:waypoint>
+        <omgdi:waypoint x="480.0" y="162.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sending2daysReminderMailFlow" id="BPMNEdge_sending2daysReminderMailFlow">
+        <omgdi:waypoint x="533.0" y="212.0"></omgdi:waypoint>
+        <omgdi:waypoint x="375.0" y="303.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="48.0" width="100.0" x="499.0" y="250.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="HRApprovalFlow" id="BPMNEdge_HRApprovalFlow">
+        <omgdi:waypoint x="1433.0" y="264.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1530.0" y="264.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="HRReviewFlow" id="BPMNEdge_HRReviewFlow">
+        <omgdi:waypoint x="826.0" y="322.0"></omgdi:waypoint>
+        <omgdi:waypoint x="900.0" y="322.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
