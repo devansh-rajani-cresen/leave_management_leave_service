@@ -1,0 +1,44 @@
+spring.application.name=leaveservice
+spring.config.import=optional:configserver:http://localhost:8888
+server.port=8082
+jwt.secret=${JWT_SECRET:YOUR_JWT_SECRET_KEY}
+
+# Database Connection
+spring.datasource.url=jdbc:postgresql://${DB_HOST:localhost}:5432/lms
+spring.datasource.username=${DB_USER:postgres}
+spring.datasource.password=${DB_PASSWORD:YOUR_DATABASE_PASSWORD}
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+# Setup for Actuators
+management.endpoints.web.exposure.include=health,info
+management.endpoint.health.show-details=always
+info.app.name=Leave Management System
+info.app.version=1.0
+
+# for registering service in eureka
+eureka.client.service-url.defaultZone=${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka/}
+eureka.client.register-with-eureka=true
+eureka.client.fetch-registry=true
+eureka.instance.prefer-ip-address=true
+
+# For flowable connection
+flowable.process-definition-location-prefix=classpath:/processes/
+flowable.process-definition-location-suffixes=**.bpmn
+flowable.database-schema-update=true
+
+# Mail sender used for manager notifications at Flowable start
+app.mail.from=${MAIL_FROM:your-email@gmail.com}
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=${MAIL_USERNAME:your-email@gmail.com}
+spring.mail.password=${MAIL_PASSWORD:your-smtp-app-password}
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+app.hr.email=${HR_EMAIL:hr-email@gmail.com}
+
+# AI Setup
+spring.ai.ollama.base-url=${OLLAMA_BASE_URL:http://localhost:11434}
+
+# General setup
+user-service.url=${USER_SERVICE_URL:http://localhost:8081}
